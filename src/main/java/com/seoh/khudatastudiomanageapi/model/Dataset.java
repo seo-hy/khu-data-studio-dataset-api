@@ -1,5 +1,6 @@
 package com.seoh.khudatastudiomanageapi.model;
 
+import com.seoh.khudatastudiomanageapi.dto.DatasetRequest;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,11 +16,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Database {
+public class Dataset {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
+  @Column(nullable = false, unique = true)
+  private String name;
 
   @Column(nullable = false)
   private String host;
@@ -28,16 +32,25 @@ public class Database {
   private String port;
 
   @Column(nullable = false)
-  private String user;
+  private String db;
+
+  @Column(nullable = false)
+  private String userName;
 
   @Column(nullable = false)
   private String password;
 
   @Column(nullable = false)
-  private String db;
+  private String tableName;
 
-  @Column(nullable = false)
-  private String table;
-
+  public void update(DatasetRequest.Update update) {
+    this.name = update.getName();
+    this.host = update.getHost();
+    this.port = update.getPort();
+    this.db = update.getDb();
+    this.userName = update.getUserName();
+    this.password = update.getPassword();
+    this.tableName = update.getTableName();
+  }
 
 }
