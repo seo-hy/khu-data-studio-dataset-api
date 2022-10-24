@@ -1,6 +1,7 @@
 package com.seoh.khudatastudiodatasetapi.dto;
 
 import com.seoh.khudatastudiodatasetapi.model.Dataset;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
