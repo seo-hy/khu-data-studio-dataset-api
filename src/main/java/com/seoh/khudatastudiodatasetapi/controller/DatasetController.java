@@ -1,11 +1,10 @@
-package com.seoh.khudatastudiomanageapi.controller;
+package com.seoh.khudatastudiodatasetapi.controller;
 
-import com.seoh.khudatastudiomanageapi.dto.DatasetRequest;
-import com.seoh.khudatastudiomanageapi.dto.DatasetResponse;
-import com.seoh.khudatastudiomanageapi.service.DatasetService;
+import com.seoh.khudatastudiodatasetapi.dto.DatasetRequest;
+import com.seoh.khudatastudiodatasetapi.dto.DatasetResponse;
+import com.seoh.khudatastudiodatasetapi.service.DatasetService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.json.simple.JSONArray;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

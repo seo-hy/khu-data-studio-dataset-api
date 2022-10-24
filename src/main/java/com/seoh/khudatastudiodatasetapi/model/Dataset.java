@@ -1,6 +1,6 @@
-package com.seoh.khudatastudiomanageapi.model;
+package com.seoh.khudatastudiodatasetapi.model;
 
-import com.seoh.khudatastudiomanageapi.dto.DatasetRequest;
+import com.seoh.khudatastudiodatasetapi.dto.DatasetRequest;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

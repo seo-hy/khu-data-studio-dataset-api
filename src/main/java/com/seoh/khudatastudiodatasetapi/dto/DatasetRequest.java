@@ -1,7 +1,6 @@
-package com.seoh.khudatastudiomanageapi.dto;
+package com.seoh.khudatastudiodatasetapi.dto;
 
-import com.seoh.khudatastudiomanageapi.dto.DatasetResponse.ColumnInfo;
-import com.seoh.khudatastudiomanageapi.model.Dataset;
+import com.seoh.khudatastudiodatasetapi.model.Dataset;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

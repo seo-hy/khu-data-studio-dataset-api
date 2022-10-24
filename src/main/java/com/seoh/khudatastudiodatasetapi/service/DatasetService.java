@@ -1,10 +1,10 @@
-package com.seoh.khudatastudiomanageapi.service;
+package com.seoh.khudatastudiodatasetapi.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.seoh.khudatastudiomanageapi.dto.DatasetRequest;
-import com.seoh.khudatastudiomanageapi.dto.DatasetResponse;
-import com.seoh.khudatastudiomanageapi.model.Dataset;
-import com.seoh.khudatastudiomanageapi.repository.DatasetRepository;
+import com.seoh.khudatastudiodatasetapi.dto.DatasetRequest;
+import com.seoh.khudatastudiodatasetapi.dto.DatasetResponse;
+import com.seoh.khudatastudiodatasetapi.model.Dataset;
+import com.seoh.khudatastudiodatasetapi.repository.DatasetRepository;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -19,7 +19,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 @Transactional
