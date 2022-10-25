@@ -38,12 +38,13 @@ public class DatasetController {
   }
 
   @PutMapping("/{datasetId}")
-  public DatasetResponse.GetId update(@PathVariable Long datasetId, @RequestBody DatasetRequest.Update request){
+  public DatasetResponse.GetId update(@PathVariable Long datasetId,
+      @RequestBody DatasetRequest.Update request) {
     return datasetService.update(datasetId, request);
   }
 
   @DeleteMapping("/{datasetId}")
-  public void delete(@PathVariable Long datasetId){
+  public void delete(@PathVariable Long datasetId) {
     datasetService.delete(datasetId);
   }
 
@@ -53,13 +54,15 @@ public class DatasetController {
   }
 
   @GetMapping("/{datasetId}/data")
-  public DatasetResponse.GetData getData(@PathVariable Long datasetId, @RequestParam(required = false) Long limit) {
+  public DatasetResponse.GetData getData(@PathVariable Long datasetId,
+      @RequestParam Long limit) {
     return datasetService.getData(datasetId, limit);
   }
 
-  @PutMapping ("/{id}/data")
-  public DatasetResponse.GetId updateData(@PathVariable Long id, @RequestBody DatasetRequest.UpdateData request){
-    return datasetService.updateData(id ,request);
+  @PutMapping("/{id}/data")
+  public DatasetResponse.GetId updateData(@PathVariable Long id,
+      @RequestBody DatasetRequest.UpdateData request) {
+    return datasetService.updateData(id, request);
   }
 
 

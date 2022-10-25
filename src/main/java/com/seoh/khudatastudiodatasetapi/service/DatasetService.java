@@ -96,7 +96,7 @@ public class DatasetService {
       Statement statement = connection.createStatement();
 
       String sql = "";
-      if (limit != null) {
+      if (limit != 0) {
         sql = String.format("select * from %s limit %d", dataset.getTableName(), limit);
       } else {
         sql = String.format("select * from %s", dataset.getTableName());
