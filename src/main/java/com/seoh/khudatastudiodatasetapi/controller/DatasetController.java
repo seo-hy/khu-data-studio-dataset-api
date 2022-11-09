@@ -65,5 +65,10 @@ public class DatasetController {
     return datasetService.updateData(id, request);
   }
 
+  @GetMapping("/{datasetId}/column")
+  public DatasetResponse.GetColumn getColumn(@PathVariable Long datasetId) {
+    return datasetService.getColumn(datasetId);
+  }
+
 
 }

@@ -43,6 +43,9 @@ public class Dataset {
   @Column(nullable = false)
   private String tableName;
 
+  @Column(nullable = false)
+  private String dateTimeColumn;
+
   public void update(DatasetRequest.Update update) {
     this.name = update.getName();
     this.host = update.getHost();
@@ -51,6 +54,7 @@ public class Dataset {
     this.userName = update.getUserName();
     this.password = update.getPassword();
     this.tableName = update.getTableName();
+    this.dateTimeColumn = update.getDateTimeColumn();
   }
 
 }
