@@ -32,6 +32,9 @@ public class DatasetResponse {
 
     private String tableName;
 
+    private String dateTimeColumn;
+
+
     public static Get of(Dataset dataset) {
       return Get.builder()
           .id(dataset.getId())
@@ -42,6 +45,7 @@ public class DatasetResponse {
           .password(dataset.getPassword())
           .db(dataset.getDb())
           .tableName(dataset.getTableName())
+          .dateTimeColumn(dataset.getDateTimeColumn())
           .build();
     }
   }
@@ -79,6 +83,9 @@ public class DatasetResponse {
 
     private String tableName;
 
+    private String dateTimeColumn;
+
+
     public static GetList of(Dataset dataset) {
       return GetList.builder()
           .id(dataset.getId())
@@ -87,6 +94,7 @@ public class DatasetResponse {
           .port(dataset.getPort())
           .db(dataset.getDb())
           .tableName(dataset.getTableName())
+          .dateTimeColumn(dataset.getDateTimeColumn())
           .build();
     }
   }
@@ -117,10 +125,23 @@ public class DatasetResponse {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
+  public static class GetColumn {
+
+    private List<ColumnInfo> column;
+
+  }
+
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
   public static class ColumnInfo {
     private String name;
     private String type;
+    private boolean dateTimeColumn;
+
   }
+
 
 
 }

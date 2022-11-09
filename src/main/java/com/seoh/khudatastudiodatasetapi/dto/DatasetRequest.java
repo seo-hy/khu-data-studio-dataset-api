@@ -31,6 +31,8 @@ public class DatasetRequest {
 
     private String tableName;
 
+    private String dateTimeColumn;
+
     public Dataset toEntity() {
       return Dataset.builder()
           .name(this.name)
@@ -40,6 +42,7 @@ public class DatasetRequest {
           .password(this.password)
           .db(this.db)
           .tableName(this.tableName)
+          .dateTimeColumn(this.dateTimeColumn)
           .build();
     }
   }
@@ -63,6 +66,8 @@ public class DatasetRequest {
     private String password;
 
     private String tableName;
+
+    private String dateTimeColumn;
 
   }
 

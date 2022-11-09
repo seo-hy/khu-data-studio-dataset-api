@@ -111,12 +111,23 @@ public class DatasetService {
         if (type.equals("VARCHAR")) {
           type += String.format("(%s)", rsmd.getColumnDisplaySize(i));
         }
-        column.add(
-            DatasetResponse.ColumnInfo.builder()
-                .name(rsmd.getColumnName(i))
-                .type(type)
-                .build()
-        );
+        if(rsmd.getColumnName(i).equals(dataset.getDateTimeColumn())){
+          column.add(
+              DatasetResponse.ColumnInfo.builder()
+                  .name(rsmd.getColumnName(i))
+                  .type(type)
+                  .dateTimeColumn(true)
+                  .build()
+          );
+        }else {
+          column.add(
+              DatasetResponse.ColumnInfo.builder()
+                  .name(rsmd.getColumnName(i))
+                  .type(type)
+                  .dateTimeColumn(false)
+                  .build()
+          );
+        }
       }
       while (resultSet.next()) {
         JSONObject obj = new JSONObject();
@@ -134,6 +145,60 @@ public class DatasetService {
     return DatasetResponse.GetData.builder()
         .column(column)
         .data(data)
+        .build();
+  }
+  public DatasetResponse.GetColumn getColumn(Long id) {
+    Dataset dataset = datasetRepository.findById(id).get();
+    String MysqlDriver = "com.mysql.jdbc.Driver";
+
+    JSONArray data = new JSONArray();
+    List<DatasetResponse.ColumnInfo> column = new ArrayList<>();
+
+    try {
+      Class.forName(MysqlDriver);
+      Connection connection = DriverManager.getConnection(
+          String.format("jdbc:mysql://%s:%s/%s", dataset.getHost(), dataset.getPort(),
+              dataset.getDb()), dataset.getUserName(), dataset.getPassword()
+      );
+      Statement statement = connection.createStatement();
+
+      String sql = "";
+      sql = String.format("select * from %s", dataset.getTableName());
+
+      ResultSet resultSet = statement.executeQuery(sql);
+
+      ResultSetMetaData rsmd = resultSet.getMetaData();
+
+      for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+        String type = rsmd.getColumnTypeName(i);
+        if (type.equals("VARCHAR")) {
+          type += String.format("(%s)", rsmd.getColumnDisplaySize(i));
+        }
+        if(rsmd.getColumnName(i).equals(dataset.getDateTimeColumn())){
+          column.add(
+              DatasetResponse.ColumnInfo.builder()
+                  .name(rsmd.getColumnName(i))
+                  .type(type)
+                  .dateTimeColumn(true)
+                  .build()
+          );
+        }else {
+          column.add(
+              DatasetResponse.ColumnInfo.builder()
+                  .name(rsmd.getColumnName(i))
+                  .type(type)
+                  .dateTimeColumn(false)
+                  .build()
+          );
+        }
+      }
+
+      connection.close();
+    } catch (Exception e) {
+      log.error(e.getMessage());
+    }
+    return DatasetResponse.GetColumn.builder()
+        .column(column)
         .build();
   }
 
