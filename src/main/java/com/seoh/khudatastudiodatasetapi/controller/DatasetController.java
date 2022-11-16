@@ -55,11 +55,11 @@ public class DatasetController {
 
   @GetMapping("/{datasetId}/data")
   public DatasetResponse.GetData getData(@PathVariable Long datasetId,
-      @RequestParam Long limit) {
-    return datasetService.getData(datasetId, limit);
+      @RequestParam Long limit,@RequestParam(required = false)String st, @RequestParam(required = false)String et) {
+    return datasetService.getData(datasetId, limit, st, et);
   }
 
-  @PutMapping("/{id}/data")
+  @PutMapping("/{datasetId}/data")
   public DatasetResponse.GetId updateData(@PathVariable Long id,
       @RequestBody DatasetRequest.UpdateData request) {
     return datasetService.updateData(id, request);

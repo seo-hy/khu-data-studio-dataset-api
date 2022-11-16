@@ -65,7 +65,14 @@ public class DatasetService {
               request.getDb()), request.getUserName(), request.getPassword()
       );
       Statement statement = connection.createStatement();
-      statement.executeQuery(String.format("select * from %s", request.getTableName()));
+      String sql = String.format("SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_NAME='%s' AND COLUMN_NAME='%s'", request.getTableName(),
+          request.getDateTimeColumn());
+
+      ResultSet resultSet = statement.executeQuery(sql);
+      resultSet.next();
+      if(!resultSet.getString("DATA_TYPE").equals("datetime")){
+        new Exception();
+      }
       connection.close();
     } catch (Exception e) {
       log.error(e.getMessage());
@@ -80,7 +87,7 @@ public class DatasetService {
         .build();
   }
 
-  public DatasetResponse.GetData getData(Long id, Long limit) {
+  public DatasetResponse.GetData getData(Long id, Long limit, String st, String et) {
     Dataset dataset = datasetRepository.findById(id).get();
     String MysqlDriver = "com.mysql.jdbc.Driver";
 
@@ -95,14 +102,19 @@ public class DatasetService {
       );
       Statement statement = connection.createStatement();
 
-      String sql = "";
+      StringBuilder sqlSb = new StringBuilder();
+      sqlSb.append(String.format("select * from %s", dataset.getTableName()));
+
+      //select * from hr_sensor_dataset where created_at between '2022-05-01' and '2022-05-02' limit 1;
+      if (!st.equals("") && !et.equals("")) {
+        sqlSb.append(
+            String.format(" where %s between '%s' and '%s'", dataset.getDateTimeColumn(), st, et));
+      }
       if (limit != 0) {
-        sql = String.format("select * from %s limit %d", dataset.getTableName(), limit);
-      } else {
-        sql = String.format("select * from %s", dataset.getTableName());
+        sqlSb.append(String.format(" limit %d", limit));
       }
 
-      ResultSet resultSet = statement.executeQuery(sql);
+      ResultSet resultSet = statement.executeQuery(sqlSb.toString());
 
       ResultSetMetaData rsmd = resultSet.getMetaData();
 
@@ -111,7 +123,7 @@ public class DatasetService {
         if (type.equals("VARCHAR")) {
           type += String.format("(%s)", rsmd.getColumnDisplaySize(i));
         }
-        if(rsmd.getColumnName(i).equals(dataset.getDateTimeColumn())){
+        if (rsmd.getColumnName(i).equals(dataset.getDateTimeColumn())) {
           column.add(
               DatasetResponse.ColumnInfo.builder()
                   .name(rsmd.getColumnName(i))
@@ -119,7 +131,7 @@ public class DatasetService {
                   .dateTimeColumn(true)
                   .build()
           );
-        }else {
+        } else {
           column.add(
               DatasetResponse.ColumnInfo.builder()
                   .name(rsmd.getColumnName(i))
@@ -147,6 +159,7 @@ public class DatasetService {
         .data(data)
         .build();
   }
+
   public DatasetResponse.GetColumn getColumn(Long id) {
     Dataset dataset = datasetRepository.findById(id).get();
     String MysqlDriver = "com.mysql.jdbc.Driver";
@@ -174,7 +187,7 @@ public class DatasetService {
         if (type.equals("VARCHAR")) {
           type += String.format("(%s)", rsmd.getColumnDisplaySize(i));
         }
-        if(rsmd.getColumnName(i).equals(dataset.getDateTimeColumn())){
+        if (rsmd.getColumnName(i).equals(dataset.getDateTimeColumn())) {
           column.add(
               DatasetResponse.ColumnInfo.builder()
                   .name(rsmd.getColumnName(i))
@@ -182,7 +195,7 @@ public class DatasetService {
                   .dateTimeColumn(true)
                   .build()
           );
-        }else {
+        } else {
           column.add(
               DatasetResponse.ColumnInfo.builder()
                   .name(rsmd.getColumnName(i))
