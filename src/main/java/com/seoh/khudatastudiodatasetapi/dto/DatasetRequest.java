@@ -89,6 +89,9 @@ public class DatasetRequest {
 
     private String tableName;
 
+    private String dateTimeColumn;
+
+
   }
 
   @Data
