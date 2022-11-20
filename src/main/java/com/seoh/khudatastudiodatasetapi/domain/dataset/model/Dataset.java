@@ -1,7 +1,6 @@
-package com.seoh.khudatastudiodatasetapi.model;
+package com.seoh.khudatastudiodatasetapi.domain.dataset.model;
 
-import com.seoh.khudatastudiodatasetapi.dto.DatasetRequest;
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetRequest;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;

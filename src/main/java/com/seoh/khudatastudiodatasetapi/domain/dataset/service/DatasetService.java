@@ -1,13 +1,13 @@
-package com.seoh.khudatastudiodatasetapi.service;
+package com.seoh.khudatastudiodatasetapi.domain.dataset.service;
 
-import com.seoh.khudatastudiodatasetapi.dto.DatasetRequest;
-import com.seoh.khudatastudiodatasetapi.dto.DatasetResponse;
-import com.seoh.khudatastudiodatasetapi.model.Dataset;
-import com.seoh.khudatastudiodatasetapi.model.DatasetColumn;
-import com.seoh.khudatastudiodatasetapi.model.TimeSeriesData;
-import com.seoh.khudatastudiodatasetapi.repository.DatasetColumnRepository;
-import com.seoh.khudatastudiodatasetapi.repository.DatasetRepository;
-import com.seoh.khudatastudiodatasetapi.repository.TimeSeriesDataRepository;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetRequest;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetResponse;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.model.Dataset;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.model.DatasetColumn;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.model.TimeSeriesData;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.repository.DatasetColumnRepository;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.repository.DatasetRepository;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.repository.TimeSeriesDataRepository;
 import com.seoh.khudatastudiodatasetapi.utils.CSVUtils;
 import com.seoh.khudatastudiodatasetapi.utils.DatabaseUtils;
 import java.io.BufferedReader;
@@ -160,6 +160,7 @@ public class DatasetService {
         }
         value.put(key,
             csvRecord.get(key).equals("") ? null : Double.parseDouble(csvRecord.get(key)));
+
       }
 
       timeSeriesDataList.add(

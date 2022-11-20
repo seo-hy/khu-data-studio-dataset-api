@@ -1,4 +1,4 @@
-package com.seoh.khudatastudiodatasetapi.config;
+package com.seoh.khudatastudiodatasetapi.configuration;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class SwaggerConfig {
+public class SwaggerConfiguration {
 
   @Bean
   public OpenAPI openAPI(){

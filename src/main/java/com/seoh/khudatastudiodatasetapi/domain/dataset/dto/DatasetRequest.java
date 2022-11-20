@@ -1,13 +1,10 @@
-package com.seoh.khudatastudiodatasetapi.dto;
+package com.seoh.khudatastudiodatasetapi.domain.dataset.dto;
 
-import com.seoh.khudatastudiodatasetapi.model.Dataset;
-import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.List;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.model.Dataset;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.json.simple.JSONArray;
 
 public class DatasetRequest {
 
