@@ -1,7 +1,14 @@
 package com.seoh.khudatastudiodatasetapi.dto;
 
 import com.seoh.khudatastudiodatasetapi.model.Dataset;
+import com.seoh.khudatastudiodatasetapi.model.DatasetColumn;
+import com.seoh.khudatastudiodatasetapi.model.TimeSeriesData;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,33 +27,81 @@ public class DatasetResponse {
 
     private String name;
 
-    private String host;
+    private List<GetColumn> column;
 
-    private String port;
-
-    private String db;
-
-    private String userName;
-
-    private String password;
-
-    private String tableName;
-
-    private String dateTimeColumn;
-
+    private List<GetTimeSeriesData> data;
 
     public static Get of(Dataset dataset) {
       return Get.builder()
           .id(dataset.getId())
           .name(dataset.getName())
-          .host(dataset.getHost())
-          .port(dataset.getPort())
-          .userName(dataset.getUserName())
-          .password(dataset.getPassword())
-          .db(dataset.getDb())
-          .tableName(dataset.getTableName())
-          .dateTimeColumn(dataset.getDateTimeColumn())
+          .column(GetColumn.of(dataset.getDatasetColumnList()))
+          .data(GetTimeSeriesData.of(dataset.getTimeSeriesDataList()))
           .build();
+    }
+  }
+
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class GetData {
+
+    private List<GetColumn> column;
+
+    private List<GetTimeSeriesData> data;
+
+    public static GetData of(Dataset dataset) {
+      return GetData.builder()
+          .column(GetColumn.of(dataset.getDatasetColumnList()))
+          .data(GetTimeSeriesData.of(dataset.getTimeSeriesDataList()))
+          .build();
+    }
+  }
+
+
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class GetColumn {
+
+    private String name;
+
+    private String type;
+
+
+    public static GetColumn of(DatasetColumn datasetColumn) {
+      return GetColumn.builder()
+          .name(datasetColumn.getName())
+          .type(datasetColumn.getType())
+          .build();
+    }
+
+    public static List<GetColumn> of(List<DatasetColumn> datasetColumnList) {
+      return datasetColumnList.stream().map(GetColumn::of).collect(Collectors.toList());
+    }
+  }
+
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class GetTimeSeriesData {
+
+    private LocalDateTime date;
+
+    private Map<String, Object> value;
+
+    public static GetTimeSeriesData of(TimeSeriesData timeSeriesData) {
+      return GetTimeSeriesData.builder()
+          .date(timeSeriesData.getDate())
+          .value(timeSeriesData.getValue())
+          .build();
+    }
+
+    public static List<GetTimeSeriesData> of(List<TimeSeriesData> timeSeriesDataList) {
+      return timeSeriesDataList.stream().map(GetTimeSeriesData::of).collect(Collectors.toList());
     }
   }
 
@@ -75,26 +130,10 @@ public class DatasetResponse {
 
     private String name;
 
-    private String host;
-
-    private String port;
-
-    private String db;
-
-    private String tableName;
-
-    private String dateTimeColumn;
-
-
     public static GetList of(Dataset dataset) {
       return GetList.builder()
           .id(dataset.getId())
           .name(dataset.getName())
-          .host(dataset.getHost())
-          .port(dataset.getPort())
-          .db(dataset.getDb())
-          .tableName(dataset.getTableName())
-          .dateTimeColumn(dataset.getDateTimeColumn())
           .build();
     }
   }
@@ -114,34 +153,13 @@ public class DatasetResponse {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
-  public static class GetData {
-
-    private List<ColumnInfo> column;
-
-    private JSONArray data;
-  }
-
-  @Data
-  @Builder
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class GetColumn {
-
-    private List<ColumnInfo> column;
-
-  }
-
-  @Data
-  @Builder
-  @NoArgsConstructor
-  @AllArgsConstructor
   public static class ColumnInfo {
+
     private String name;
     private String type;
     private boolean dateTimeColumn;
 
   }
-
 
 
 }

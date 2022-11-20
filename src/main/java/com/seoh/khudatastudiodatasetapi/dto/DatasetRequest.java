@@ -15,7 +15,7 @@ public class DatasetRequest {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
-  public static class Save {
+  public static class SaveWithDatabase {
 
     private String name;
 
@@ -25,24 +25,34 @@ public class DatasetRequest {
 
     private String db;
 
-    private String userName;
+    private String username;
 
     private String password;
 
-    private String tableName;
+    private String table;
 
     private String dateTimeColumn;
 
     public Dataset toEntity() {
       return Dataset.builder()
           .name(this.name)
-          .host(this.host)
-          .port(this.port)
-          .userName(this.userName)
-          .password(this.password)
-          .db(this.db)
-          .tableName(this.tableName)
-          .dateTimeColumn(this.dateTimeColumn)
+          .build();
+    }
+  }
+
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class SaveWithCsv {
+
+    private String name;
+
+    private String dateTimeColumn;
+
+    public Dataset toEntity() {
+      return Dataset.builder()
+          .name(this.name)
           .build();
     }
   }
@@ -55,17 +65,25 @@ public class DatasetRequest {
 
     private String name;
 
+  }
+
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class PreviewDatabase {
+
     private String host;
 
     private String port;
 
     private String db;
 
-    private String userName;
+    private String username;
 
     private String password;
 
-    private String tableName;
+    private String table;
 
     private String dateTimeColumn;
 
@@ -75,43 +93,10 @@ public class DatasetRequest {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
-  public static class Connect {
-
-    private String host;
-
-    private String port;
-
-    private String db;
-
-    private String userName;
-
-    private String password;
-
-    private String tableName;
+  public static class PreviewCsv{
 
     private String dateTimeColumn;
 
-
-  }
-
-  @Data
-  @Builder
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class UpdateData {
-
-    private List<DatasetRequest.ColumnInfo> column;
-
-    private JSONArray data;
-  }
-
-  @Data
-  @Builder
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class ColumnInfo {
-    private String name;
-    private String type;
   }
 
 }
