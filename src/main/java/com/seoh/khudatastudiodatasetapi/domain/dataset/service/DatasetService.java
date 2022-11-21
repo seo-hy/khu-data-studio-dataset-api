@@ -1,7 +1,9 @@
 package com.seoh.khudatastudiodatasetapi.domain.dataset.service;
 
+import com.seoh.khudatastudiodatasetapi.domain.common.advice.exception.DatasetDataTypeNotValidException;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetRequest;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetResponse;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetResponse.GetColumn;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.Dataset;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.DatasetColumn;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.TimeSeriesData;
@@ -31,6 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,11 +70,11 @@ public class DatasetService {
       String type = rsmd.getColumnTypeName(i);
       if (name.equals(request.getDateTimeColumn())) {
         if (!type.equals(DatabaseUtils.DEFAULT_DATETIME_TYPE)) {
-          throw new IllegalStateException("Type Error : Invalid datetimeColumn");
+          throw new DatasetDataTypeNotValidException("Invalid datetimeColumn");
         }
       } else if (Arrays.stream(DatabaseUtils.NUM_TYPES).noneMatch(t -> t.equals(type))) {
-        throw new IllegalStateException(
-            "Type Error : There are types of data that are not numeric");
+        throw new DatasetDataTypeNotValidException(
+            "There are types of data that are not numeric");
       }
       datasetColumnList.add(
           DatasetColumn.builder()
@@ -177,13 +181,12 @@ public class DatasetService {
 
   }
 
-
   public DatasetResponse.Get get(Long datasetId) {
     return DatasetResponse.Get.of(datasetRepository.findById(datasetId).get());
   }
 
   public List<DatasetResponse.GetList> getList() {
-    return datasetRepository.findAll().stream()
+    return datasetRepository.findAll(Sort.by(Direction.ASC, "id")).stream()
         .map(DatasetResponse.GetList::of)
         .collect(Collectors.toList());
   }
@@ -201,7 +204,7 @@ public class DatasetService {
   }
 
   @SneakyThrows
-  public DatasetResponse.GetData previewDatabase(DatasetRequest.PreviewDatabase request) {
+  public DatasetResponse.GetData previewWithDatabase(DatasetRequest.PreviewWithDatabase request) {
 
     Class.forName(DatabaseUtils.MYSQL_DRIVER);
     Connection connection = DriverManager.getConnection(
@@ -220,11 +223,11 @@ public class DatasetService {
       String type = rsmd.getColumnTypeName(i);
       if (name.equals(request.getDateTimeColumn())) {
         if (!type.equals(DatabaseUtils.DEFAULT_DATETIME_TYPE)) {
-          throw new IllegalStateException("Type Error : Invalid datetimeColumn");
+          throw new DatasetDataTypeNotValidException("Invalid datetimeColumn");
         }
       } else if (Arrays.stream(DatabaseUtils.NUM_TYPES).noneMatch(t -> t.equals(type))) {
-        throw new IllegalStateException(
-            "Type Error : There are types of data that are not numeric");
+        throw new DatasetDataTypeNotValidException(
+            "Not a numeric type");
       }
       columnList.add(
           DatasetResponse.GetColumn.builder()
@@ -262,9 +265,17 @@ public class DatasetService {
         .build();
   }
 
+  public DatasetResponse.GetData previewData(Long datasetId){
+    return DatasetResponse.GetData
+        .builder()
+        .column(DatasetResponse.GetColumn.of(datasetColumnRepository.findByDatasetId(datasetId)))
+        .data(DatasetResponse.GetTimeSeriesData.of(timeSeriesDataRepository.findTop20ByDatasetIdOrderByDate(datasetId)))
+        .build();
+  }
+
   @SneakyThrows
-  public DatasetResponse.GetData previewCsv(
-      DatasetRequest.PreviewCsv request,
+  public DatasetResponse.GetData previewWithCsv(
+      DatasetRequest.PreviewWithCsv request,
       MultipartFile csv) {
 
     BufferedReader br = new BufferedReader(new InputStreamReader(csv.getInputStream()));
@@ -329,77 +340,99 @@ public class DatasetService {
         .build();
   }
 
-  public DatasetResponse.GetData getData(Long id, Long limit, String st, String et) {
-//    Dataset dataset = datasetRepository.findById(id).get();
-//    String MysqlDriver = "com.mysql.jdbc.Driver";
-//
-//    JSONArray data = new JSONArray();
-//    List<DatasetResponse.ColumnInfo> column = new ArrayList<>();
-//
-//    try {
-//      Class.forName(MysqlDriver);
-//      Connection connection = DriverManager.getConnection(
-//          String.format("jdbc:mysql://%s:%s/%s", dataset.getHost(), dataset.getPort(),
-//              dataset.getDb()), dataset.getUserName(), dataset.getPassword()
-//      );
-//      Statement statement = connection.createStatement();
-//
-//      StringBuilder sqlSb = new StringBuilder();
-//      sqlSb.append(String.format("select * from %s", dataset.getTableName()));
-//
-//      //select * from hr_sensor_dataset where created_at between '2022-05-01' and '2022-05-02' limit 1;
-//      if (!st.equals("") && !et.equals("")) {
-//        sqlSb.append(
-//            String.format(" where %s between '%s' and '%s'", dataset.getDateTimeColumn(), st, et));
-//      }
-//      if (limit != 0) {
-//        sqlSb.append(String.format(" limit %d", limit));
-//      }
-//
-//      ResultSet resultSet = statement.executeQuery(sqlSb.toString());
-//
-//      ResultSetMetaData rsmd = resultSet.getMetaData();
-//
-//      for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-//        String type = rsmd.getColumnTypeName(i);
-//        if (type.equals("VARCHAR")) {
-//          type += String.format("(%s)", rsmd.getColumnDisplaySize(i));
-//        }
-//        if (rsmd.getColumnName(i).equals(dataset.getDateTimeColumn())) {
-//          column.add(
-//              DatasetResponse.ColumnInfo.builder()
-//                  .name(rsmd.getColumnName(i))
-//                  .type(type)
-//                  .dateTimeColumn(true)
-//                  .build()
-//          );
-//        } else {
-//          column.add(
-//              DatasetResponse.ColumnInfo.builder()
-//                  .name(rsmd.getColumnName(i))
-//                  .type(type)
-//                  .dateTimeColumn(false)
-//                  .build()
-//          );
-//        }
-//      }
-//      while (resultSet.next()) {
-//        JSONObject obj = new JSONObject();
-//        int columnCount = rsmd.getColumnCount();
-//        for (int i = 1; i <= columnCount; i++) {
-//          String columnName = rsmd.getColumnName(i);
-//          obj.put(columnName, resultSet.getObject(columnName));
-//        }
-//        data.add(obj);
-//      }
-//      connection.close();
-//    } catch (Exception e) {
-//      log.error(e.getMessage());
-//    }
-//    return DatasetResponse.GetData.builder()
-//        .column(column)
-//        .data(data)
-//        .build();
+  @SneakyThrows
+  public DatasetResponse.GetId updateWithDatabase(Long datasetId, DatasetRequest.UpdateWithDatabase request) {
+    Dataset dataset = datasetRepository.findById(datasetId).get();
+
+    Class.forName(DatabaseUtils.MYSQL_DRIVER);
+    Connection connection = DriverManager.getConnection(
+        String.format("jdbc:mysql://%s:%s/%s", request.getHost(), request.getPort(),
+            request.getDb()), request.getUsername(), request.getPassword()
+    );
+    Statement statement = connection.createStatement();
+    String sql = String.format("select * from %s", request.getTable());
+    ResultSet rs = statement.executeQuery(sql);
+
+    ResultSetMetaData rsmd = rs.getMetaData();
+
+    List<TimeSeriesData> timeSeriesDataList = new ArrayList<>();
+    while (rs.next()) {
+      Map<String, Object> value = new HashMap<>();
+      LocalDateTime date = null;
+      int cnt = rsmd.getColumnCount();
+      for (int i = 1; i <= cnt; i++) {
+        String name = rsmd.getColumnName(i);
+        if (name.equals(request.getDateTimeColumn())) {
+          date = (LocalDateTime) rs.getObject(name);
+        } else {
+          value.put(name, rs.getObject(name));
+        }
+      }
+      timeSeriesDataList.add(
+          TimeSeriesData.builder()
+              .date(date)
+              .value(value)
+              .dataset(dataset)
+              .build()
+      );
+    }
+    timeSeriesDataRepository.saveAll(timeSeriesDataList);
+
+    connection.close();
+
+    return DatasetResponse.GetId.of(dataset);
+
+  }
+
+  @SneakyThrows
+  public DatasetResponse.GetId updateWithCsv(
+      Long datasetId,
+      DatasetRequest.UpdateWithCsv request,
+      MultipartFile csv) {
+    Dataset dataset = datasetRepository.findById(datasetId).get();
+
+    BufferedReader br = new BufferedReader(new InputStreamReader(csv.getInputStream()));
+    CSVParser csvParser = new CSVParser(br,
+        CSVFormat.DEFAULT.builder()
+            .setHeader()
+            .setSkipHeaderRecord(true)
+            .build()
+    );
+
+    Map<String, Integer> headerMap = csvParser.getHeaderMap();
+
+    List<TimeSeriesData> timeSeriesDataList = new ArrayList<>();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    for (CSVRecord csvRecord : csvParser) {
+      Map<String, Object> value = new HashMap<>();
+      LocalDateTime date = LocalDateTime.parse(csvRecord.get(request.getDateTimeColumn()),
+          formatter);
+
+      for (String key : headerMap.keySet()) {
+        if (key.equals(request.getDateTimeColumn())) {
+          continue;
+        }
+        value.put(key,
+            csvRecord.get(key).equals("") ? null : Double.parseDouble(csvRecord.get(key)));
+
+      }
+
+      timeSeriesDataList.add(
+          TimeSeriesData.builder()
+              .dataset(dataset)
+              .date(date)
+              .value(value)
+              .build()
+      );
+    }
+    timeSeriesDataRepository.saveAll(timeSeriesDataList);
+
+    return DatasetResponse.GetId.of(dataset);
+  }
+
+    public DatasetResponse.GetData getData(Long id, Long limit, String st, String et) {
+    Dataset dataset = datasetRepository.findById(id).get();
+
     return null;
   }
 

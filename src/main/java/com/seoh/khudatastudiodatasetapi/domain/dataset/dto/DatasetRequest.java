@@ -1,6 +1,7 @@
 package com.seoh.khudatastudiodatasetapi.domain.dataset.dto;
 
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.Dataset;
+import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,20 +15,28 @@ public class DatasetRequest {
   @AllArgsConstructor
   public static class SaveWithDatabase {
 
+    @NotEmpty(message = "name은 필수 입력값입니다.")
     private String name;
 
+    @NotEmpty(message = "host는 필수 입력값입니다.")
     private String host;
 
+    @NotEmpty(message = "port는 필수 입력값입니다.")
     private String port;
 
+    @NotEmpty(message = "db는 필수 입력값입니다.")
     private String db;
 
+    @NotEmpty(message = "username은 필수 입력값입니다.")
     private String username;
 
+    @NotEmpty(message = "password는 필수 입력값입니다.")
     private String password;
 
+    @NotEmpty(message = "table은 필수 입력값입니다.")
     private String table;
 
+    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
     private String dateTimeColumn;
 
     public Dataset toEntity() {
@@ -43,8 +52,10 @@ public class DatasetRequest {
   @AllArgsConstructor
   public static class SaveWithCsv {
 
+    @NotEmpty(message = "name은 필수 입력값입니다.")
     private String name;
 
+    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
     private String dateTimeColumn;
 
     public Dataset toEntity() {
@@ -60,6 +71,7 @@ public class DatasetRequest {
   @AllArgsConstructor
   public static class Update {
 
+    @NotEmpty(message = "name은 필수 입력값입니다.")
     private String name;
 
   }
@@ -68,20 +80,27 @@ public class DatasetRequest {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
-  public static class PreviewDatabase {
+  public static class PreviewWithDatabase {
 
+    @NotEmpty(message = "host는 필수 입력값입니다.")
     private String host;
 
+    @NotEmpty(message = "port는 필수 입력값입니다.")
     private String port;
 
+    @NotEmpty(message = "db는 필수 입력값입니다.")
     private String db;
 
+    @NotEmpty(message = "username은 필수 입력값입니다.")
     private String username;
 
+    @NotEmpty(message = "password는 필수 입력값입니다.")
     private String password;
 
+    @NotEmpty(message = "table은 필수 입력값입니다.")
     private String table;
 
+    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
     private String dateTimeColumn;
 
   }
@@ -90,8 +109,49 @@ public class DatasetRequest {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
-  public static class PreviewCsv{
+  public static class PreviewWithCsv{
 
+    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
+    private String dateTimeColumn;
+
+  }
+
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class UpdateWithDatabase {
+
+    @NotEmpty(message = "host는 필수 입력값입니다.")
+    private String host;
+
+    @NotEmpty(message = "port는 필수 입력값입니다.")
+    private String port;
+
+    @NotEmpty(message = "db는 필수 입력값입니다.")
+    private String db;
+
+    @NotEmpty(message = "username은 필수 입력값입니다.")
+    private String username;
+
+    @NotEmpty(message = "password는 필수 입력값입니다.")
+    private String password;
+
+    @NotEmpty(message = "table은 필수 입력값입니다.")
+    private String table;
+
+    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
+    private String dateTimeColumn;
+
+  }
+
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class UpdateWithCsv{
+
+    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
     private String dateTimeColumn;
 
   }

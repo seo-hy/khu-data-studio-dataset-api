@@ -67,7 +67,6 @@ public class DatasetResponse {
 
     private String type;
 
-
     public static GetColumn of(DatasetColumn datasetColumn) {
       return GetColumn.builder()
           .name(datasetColumn.getName())
