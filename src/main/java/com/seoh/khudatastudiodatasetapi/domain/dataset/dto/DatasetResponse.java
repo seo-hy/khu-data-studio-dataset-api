@@ -1,5 +1,6 @@
 package com.seoh.khudatastudiodatasetapi.domain.dataset.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.Dataset;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.DatasetColumn;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.TimeSeriesData;
@@ -24,6 +25,8 @@ public class DatasetResponse {
 
     private String name;
 
+    private String dateTimeColumn;
+
     private List<GetColumn> column;
 
     private List<GetTimeSeriesData> data;
@@ -32,6 +35,7 @@ public class DatasetResponse {
       return Get.builder()
           .id(dataset.getId())
           .name(dataset.getName())
+          .dateTimeColumn(dataset.getDateTimeColumn())
           .column(GetColumn.of(dataset.getDatasetColumnList()))
           .data(GetTimeSeriesData.of(dataset.getTimeSeriesDataList()))
           .build();
@@ -44,12 +48,15 @@ public class DatasetResponse {
   @AllArgsConstructor
   public static class GetData {
 
+    private String dateTimeColumn;
+
     private List<GetColumn> column;
 
     private List<GetTimeSeriesData> data;
 
     public static GetData of(Dataset dataset) {
       return GetData.builder()
+          .dateTimeColumn(dataset.getDateTimeColumn())
           .column(GetColumn.of(dataset.getDatasetColumnList()))
           .data(GetTimeSeriesData.of(dataset.getTimeSeriesDataList()))
           .build();
@@ -85,6 +92,7 @@ public class DatasetResponse {
   @AllArgsConstructor
   public static class GetTimeSeriesData {
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime date;
 
     private Map<String, Object> value;

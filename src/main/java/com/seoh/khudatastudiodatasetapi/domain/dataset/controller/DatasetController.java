@@ -3,9 +3,15 @@ package com.seoh.khudatastudiodatasetapi.domain.dataset.controller;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetRequest;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetResponse;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.service.DatasetService;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,14 +33,15 @@ public class DatasetController {
 
   @PostMapping("/database")
   public DatasetResponse.GetId saveWithDatabase(
-      @RequestBody @Valid DatasetRequest.SaveWithDatabase request) {
+      @RequestBody @Valid DatasetRequest.SaveWithDatabase request)
+      throws SQLException, ClassNotFoundException {
     return datasetService.saveWithDatabase(request);
   }
 
   @PostMapping("/csv")
   public DatasetResponse.GetId saveWithCsv(
       @RequestPart @Valid DatasetRequest.SaveWithCsv request,
-      @RequestPart MultipartFile csv) {
+      @RequestPart MultipartFile csv) throws IOException {
     return datasetService.saveWithCsv(request, csv);
   }
 
@@ -74,10 +81,11 @@ public class DatasetController {
   }
 
   @GetMapping("/{datasetId}/data")
-  public DatasetResponse.GetData getData(@PathVariable Long datasetId,
-      @RequestParam Long limit, @RequestParam(required = false) String st,
-      @RequestParam(required = false) String et) {
-    return datasetService.getData(datasetId, limit, st, et);
+  public DatasetResponse.GetData getData(
+      @PathVariable Long datasetId,
+      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate st,
+      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate et) {
+    return datasetService.getData(datasetId, st, et);
   }
 
   @GetMapping("/{datasetId}/data/preview")
@@ -100,6 +108,7 @@ public class DatasetController {
       @RequestPart MultipartFile csv) {
     return datasetService.updateWithCsv(datasetId, request, csv);
   }
+
 
 //
 //  @PutMapping("/{datasetId}/data")

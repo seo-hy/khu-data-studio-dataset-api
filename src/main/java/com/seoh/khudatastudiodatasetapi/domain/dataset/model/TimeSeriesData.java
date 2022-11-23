@@ -9,6 +9,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -23,13 +24,11 @@ import org.hibernate.annotations.TypeDef;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@IdClass(TimeSeriesDataPK.class)
 @TypeDef(name = "json", typeClass = JsonType.class)
 public class TimeSeriesData {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
   @Column(nullable = false)
   private LocalDateTime date;
 
@@ -37,6 +36,7 @@ public class TimeSeriesData {
   @Column(nullable = false, columnDefinition = "json")
   private Map<String, Object> value;
 
+  @Id
   @ManyToOne(targetEntity = Dataset.class, fetch = FetchType.LAZY)
   @JoinColumn(name = "dataset_id", nullable = false)
   private Dataset dataset;

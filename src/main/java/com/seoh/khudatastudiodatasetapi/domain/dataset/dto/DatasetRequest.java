@@ -1,11 +1,13 @@
 package com.seoh.khudatastudiodatasetapi.domain.dataset.dto;
 
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.Dataset;
+import java.time.LocalDateTime;
 import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 public class DatasetRequest {
 
@@ -42,6 +44,7 @@ public class DatasetRequest {
     public Dataset toEntity() {
       return Dataset.builder()
           .name(this.name)
+          .dateTimeColumn(dateTimeColumn)
           .build();
     }
   }
@@ -61,6 +64,7 @@ public class DatasetRequest {
     public Dataset toEntity() {
       return Dataset.builder()
           .name(this.name)
+          .dateTimeColumn(dateTimeColumn)
           .build();
     }
   }
@@ -155,5 +159,6 @@ public class DatasetRequest {
     private String dateTimeColumn;
 
   }
+
 
 }

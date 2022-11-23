@@ -29,6 +29,9 @@ public class Dataset {
   @Column(nullable = false, unique = true)
   private String name;
 
+  @Column(nullable = false)
+  private String dateTimeColumn;
+
   @OneToMany(mappedBy = "dataset", cascade = CascadeType.ALL)
   private List<DatasetColumn> datasetColumnList;
 
