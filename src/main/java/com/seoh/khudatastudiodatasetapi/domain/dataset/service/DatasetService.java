@@ -4,11 +4,14 @@ import com.seoh.khudatastudiodatasetapi.domain.common.advice.exception.DatasetDa
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetRequest;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetResponse;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetResponse.GetColumn;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetResponse.GetList;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.HistoryResponse;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.Dataset;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.DatasetColumn;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.TimeSeriesData;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.repository.DatasetColumnRepository;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.repository.DatasetRepository;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.repository.HistoryRepository;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.repository.TimeSeriesDataRepository;
 import com.seoh.khudatastudiodatasetapi.utils.CSVUtils;
 import com.seoh.khudatastudiodatasetapi.utils.DatabaseUtils;
@@ -40,7 +43,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -52,6 +54,7 @@ public class DatasetService {
   private final DatasetRepository datasetRepository;
   private final DatasetColumnRepository datasetColumnRepository;
   private final TimeSeriesDataRepository timeSeriesDataRepository;
+  private final HistoryRepository historyRepository;
 
   public DatasetResponse.GetId saveWithDatabase(DatasetRequest.SaveWithDatabase request)
       throws ClassNotFoundException, SQLException {
@@ -69,24 +72,22 @@ public class DatasetService {
     ResultSetMetaData rsmd = rs.getMetaData();
 
     List<DatasetColumn> datasetColumnList = new ArrayList<>();
-    for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+    dataset.setDateTimeColumn(rsmd.getColumnName(1));
+    for (int i = 2; i <= rsmd.getColumnCount(); i++) {
       String name = rsmd.getColumnName(i);
       String type = rsmd.getColumnTypeName(i);
-      if (name.equals(request.getDateTimeColumn())) {
-        if (!type.equals(DatabaseUtils.DEFAULT_DATETIME_TYPE)) {
-          throw new DatasetDataTypeNotValidException("Invalid datetimeColumn");
-        }
-        continue;
-      } else if (Arrays.stream(DatabaseUtils.NUM_TYPES).noneMatch(t -> t.equals(type))) {
+      if (Arrays.stream(DatabaseUtils.NUM_TYPES).noneMatch(t -> t.equals(type))) {
         throw new DatasetDataTypeNotValidException(
             "There are types of data that are not numeric");
+      } else {
+        datasetColumnList.add(
+            DatasetColumn.builder()
+                .name(name)
+                .type(type)
+                .dataset(dataset)
+                .build());
       }
-      datasetColumnList.add(
-          DatasetColumn.builder()
-              .name(name)
-              .type(type)
-              .dataset(dataset)
-              .build());
+
     }
     datasetColumnRepository.saveAll(datasetColumnList);
 
@@ -97,7 +98,7 @@ public class DatasetService {
       int cnt = rsmd.getColumnCount();
       for (int i = 1; i <= cnt; i++) {
         String name = rsmd.getColumnName(i);
-        if (name.equals(request.getDateTimeColumn())) {
+        if (name.equals(dataset.getDateTimeColumn())) {
           date = (LocalDateTime) rs.getObject(name);
         } else {
           value.put(name, rs.getObject(name));
@@ -134,8 +135,10 @@ public class DatasetService {
 
     List<DatasetColumn> datasetColumnList = new ArrayList<>();
     Map<String, Integer> headerMap = csvParser.getHeaderMap();
+    dataset.setDateTimeColumn(csvParser.getHeaderNames().get(0));
+
     for (String key : headerMap.keySet()) {
-      if (key.equals(request.getDateTimeColumn())) {
+      if (key.equals(dataset.getDateTimeColumn())) {
         continue;
       } else {
         datasetColumnList.add(
@@ -153,11 +156,11 @@ public class DatasetService {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     for (CSVRecord csvRecord : csvParser) {
       Map<String, Object> value = new HashMap<>();
-      LocalDateTime date = LocalDateTime.parse(csvRecord.get(request.getDateTimeColumn()),
+      LocalDateTime date = LocalDateTime.parse(csvRecord.get(dataset.getDateTimeColumn()),
           formatter);
 
       for (String key : headerMap.keySet()) {
-        if (key.equals(request.getDateTimeColumn())) {
+        if (key.equals(dataset.getDateTimeColumn())) {
           continue;
         }
         value.put(key,
@@ -184,9 +187,14 @@ public class DatasetService {
   }
 
   public List<DatasetResponse.GetList> getList() {
-    return datasetRepository.findAll(Sort.by(Direction.ASC, "id")).stream()
+    List<DatasetResponse.GetList> result = datasetRepository.findAll(Sort.by(Direction.ASC, "id")).stream()
         .map(DatasetResponse.GetList::of)
         .collect(Collectors.toList());
+    for(GetList getList : result){
+      getList.setMissingValueList(HistoryResponse.GetMissingValue.of(historyRepository.findByDatasetIdAndName(getList.getId(), "missingValue")));
+      getList.setNoiseList(HistoryResponse.GetNoise.of(historyRepository.findByDatasetIdAndName(getList.getId(),"noise")));
+    }
+    return result;
   }
 
   public DatasetResponse.GetId update(Long datasetId, DatasetRequest.Update request) {
@@ -216,10 +224,11 @@ public class DatasetService {
     ResultSetMetaData rsmd = rs.getMetaData();
 
     List<DatasetResponse.GetColumn> columnList = new ArrayList<>();
-    for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+    String dateTimeColumn = rsmd.getColumnName(1);
+    for (int i = 2; i <= rsmd.getColumnCount(); i++) {
       String name = rsmd.getColumnName(i);
       String type = rsmd.getColumnTypeName(i);
-      if (name.equals(request.getDateTimeColumn())) {
+      if (name.equals(dateTimeColumn)) {
         if (!type.equals(DatabaseUtils.DEFAULT_DATETIME_TYPE)) {
           throw new DatasetDataTypeNotValidException("Invalid datetimeColumn");
         }
@@ -242,7 +251,7 @@ public class DatasetService {
       int cnt = rsmd.getColumnCount();
       for (int i = 1; i <= cnt; i++) {
         String name = rsmd.getColumnName(i);
-        if (name.equals(request.getDateTimeColumn())) {
+        if (name.equals(dateTimeColumn)) {
           date = (LocalDateTime) rs.getObject(name);
         } else {
           value.put(name, rs.getObject(name));
@@ -259,7 +268,7 @@ public class DatasetService {
     connection.close();
 
     return DatasetResponse.GetData.builder()
-        .dateTimeColumn(request.getDateTimeColumn())
+        .dateTimeColumn(dateTimeColumn)
         .column(columnList)
         .data(timeSeriesDataList)
         .build();
@@ -268,9 +277,7 @@ public class DatasetService {
 
   @SneakyThrows
   public DatasetResponse.GetData previewWithCsv(
-      DatasetRequest.PreviewWithCsv request,
       MultipartFile csv) {
-
     BufferedReader br = new BufferedReader(new InputStreamReader(csv.getInputStream()));
     CSVParser csvParser = new CSVParser(br,
         CSVFormat.DEFAULT.builder()
@@ -281,9 +288,10 @@ public class DatasetService {
 
     List<DatasetResponse.GetColumn> columnList = new ArrayList<>();
     Map<String, Integer> headerMap = csvParser.getHeaderMap();
+    String dateTimeColumn = csvParser.getHeaderNames().get(0);
     for (String key : headerMap.keySet()) {
-      if (key.equals(request.getDateTimeColumn())) {
-       continue;
+      if (key.equals(dateTimeColumn)) {
+        continue;
       } else {
         columnList.add(
             DatasetResponse.GetColumn.builder()
@@ -302,11 +310,11 @@ public class DatasetService {
         break;
       }
       Map<String, Object> value = new HashMap<>();
-      LocalDateTime date = LocalDateTime.parse(csvRecord.get(request.getDateTimeColumn()),
+      LocalDateTime date = LocalDateTime.parse(csvRecord.get(dateTimeColumn),
           formatter);
 
       for (String key : headerMap.keySet()) {
-        if (key.equals(request.getDateTimeColumn())) {
+        if (key.equals(dateTimeColumn)) {
           continue;
         }
         value.put(key,
@@ -323,7 +331,7 @@ public class DatasetService {
     }
 
     return DatasetResponse.GetData.builder()
-        .dateTimeColumn(request.getDateTimeColumn())
+        .dateTimeColumn(dateTimeColumn)
         .column(columnList)
         .data(timeSeriesDataList)
         .build();
@@ -363,7 +371,7 @@ public class DatasetService {
       int cnt = rsmd.getColumnCount();
       for (int i = 1; i <= cnt; i++) {
         String name = rsmd.getColumnName(i);
-        if (name.equals(request.getDateTimeColumn())) {
+        if (name.equals(dataset.getDateTimeColumn())) {
           date = (LocalDateTime) rs.getObject(name);
         } else {
           value.put(name, rs.getObject(name));
@@ -388,7 +396,6 @@ public class DatasetService {
   @SneakyThrows
   public DatasetResponse.GetId updateWithCsv(
       Long datasetId,
-      DatasetRequest.UpdateWithCsv request,
       MultipartFile csv) {
     Dataset dataset = datasetRepository.findById(datasetId).get();
 
@@ -406,11 +413,11 @@ public class DatasetService {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     for (CSVRecord csvRecord : csvParser) {
       Map<String, Object> value = new HashMap<>();
-      LocalDateTime date = LocalDateTime.parse(csvRecord.get(request.getDateTimeColumn()),
+      LocalDateTime date = LocalDateTime.parse(csvRecord.get(dataset.getDateTimeColumn()),
           formatter);
 
       for (String key : headerMap.keySet()) {
-        if (key.equals(request.getDateTimeColumn())) {
+        if (key.equals(dataset.getDateTimeColumn())) {
           continue;
         }
         value.put(key,
@@ -432,7 +439,7 @@ public class DatasetService {
   }
 
   public DatasetResponse.GetData getData(Long datasetId, LocalDate st, LocalDate et) {
-    if(st == null || et ==null){
+    if (st == null || et == null) {
       return DatasetResponse.GetData
           .builder()
           .dateTimeColumn(datasetRepository.findById(datasetId).get().getDateTimeColumn())
@@ -446,7 +453,8 @@ public class DatasetService {
         .dateTimeColumn(datasetRepository.findById(datasetId).get().getDateTimeColumn())
         .column(DatasetResponse.GetColumn.of(datasetColumnRepository.findByDatasetId(datasetId)))
         .data(DatasetResponse.GetTimeSeriesData.of(
-            timeSeriesDataRepository.findByDatasetIdAndDateBetweenOrderByDate(datasetId, st.atStartOfDay(), et.atStartOfDay())))
+            timeSeriesDataRepository.findByDatasetIdAndDateBetweenOrderByDate(datasetId,
+                st.atStartOfDay(), et.atStartOfDay())))
         .build();
 
   }

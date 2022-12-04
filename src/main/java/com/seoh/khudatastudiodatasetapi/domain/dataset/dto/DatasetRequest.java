@@ -38,13 +38,10 @@ public class DatasetRequest {
     @NotEmpty(message = "table은 필수 입력값입니다.")
     private String table;
 
-    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
-    private String dateTimeColumn;
 
     public Dataset toEntity() {
       return Dataset.builder()
           .name(this.name)
-          .dateTimeColumn(dateTimeColumn)
           .build();
     }
   }
@@ -58,13 +55,9 @@ public class DatasetRequest {
     @NotEmpty(message = "name은 필수 입력값입니다.")
     private String name;
 
-    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
-    private String dateTimeColumn;
-
     public Dataset toEntity() {
       return Dataset.builder()
           .name(this.name)
-          .dateTimeColumn(dateTimeColumn)
           .build();
     }
   }
@@ -104,21 +97,9 @@ public class DatasetRequest {
     @NotEmpty(message = "table은 필수 입력값입니다.")
     private String table;
 
-    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
-    private String dateTimeColumn;
 
   }
 
-  @Data
-  @Builder
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class PreviewWithCsv{
-
-    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
-    private String dateTimeColumn;
-
-  }
 
   @Data
   @Builder
@@ -144,21 +125,9 @@ public class DatasetRequest {
     @NotEmpty(message = "table은 필수 입력값입니다.")
     private String table;
 
-    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
-    private String dateTimeColumn;
 
   }
 
-  @Data
-  @Builder
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class UpdateWithCsv{
-
-    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
-    private String dateTimeColumn;
-
-  }
 
 
 }

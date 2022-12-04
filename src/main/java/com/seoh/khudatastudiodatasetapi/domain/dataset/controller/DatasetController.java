@@ -6,11 +6,9 @@ import com.seoh.khudatastudiodatasetapi.domain.dataset.service.DatasetService;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -75,9 +73,8 @@ public class DatasetController {
 
   @PostMapping("/preview/csv")
   public DatasetResponse.GetData previewWithCsv(
-      @RequestPart @Valid DatasetRequest.PreviewWithCsv request,
       @RequestPart MultipartFile csv) {
-    return datasetService.previewWithCsv(request, csv);
+    return datasetService.previewWithCsv(csv);
   }
 
   @GetMapping("/{datasetId}/data")
@@ -104,9 +101,8 @@ public class DatasetController {
   @PutMapping("/{datasetId}/data/csv")
   public DatasetResponse.GetId updateWithCsv(
       @PathVariable Long datasetId,
-      @RequestPart @Valid DatasetRequest.UpdateWithCsv request,
       @RequestPart MultipartFile csv) {
-    return datasetService.updateWithCsv(datasetId, request, csv);
+    return datasetService.updateWithCsv(datasetId,csv);
   }
 
 

@@ -134,6 +134,10 @@ public class DatasetResponse {
 
     private String name;
 
+    private List<HistoryResponse.GetMissingValue> missingValueList;
+
+    private List<HistoryResponse.GetNoise> noiseList;
+
     public static GetList of(Dataset dataset) {
       return GetList.builder()
           .id(dataset.getId())
