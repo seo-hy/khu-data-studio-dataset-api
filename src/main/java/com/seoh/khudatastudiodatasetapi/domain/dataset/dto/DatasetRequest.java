@@ -1,7 +1,12 @@
 package com.seoh.khudatastudiodatasetapi.domain.dataset.dto;
 
+import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetResponse.GetColumn;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.Dataset;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.model.DatasetColumn;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,13 +43,10 @@ public class DatasetRequest {
     @NotEmpty(message = "table은 필수 입력값입니다.")
     private String table;
 
-    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
-    private String dateTimeColumn;
 
     public Dataset toEntity() {
       return Dataset.builder()
           .name(this.name)
-          .dateTimeColumn(dateTimeColumn)
           .build();
     }
   }
@@ -58,13 +60,9 @@ public class DatasetRequest {
     @NotEmpty(message = "name은 필수 입력값입니다.")
     private String name;
 
-    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
-    private String dateTimeColumn;
-
     public Dataset toEntity() {
       return Dataset.builder()
           .name(this.name)
-          .dateTimeColumn(dateTimeColumn)
           .build();
     }
   }
@@ -104,21 +102,9 @@ public class DatasetRequest {
     @NotEmpty(message = "table은 필수 입력값입니다.")
     private String table;
 
-    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
-    private String dateTimeColumn;
 
   }
 
-  @Data
-  @Builder
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class PreviewWithCsv{
-
-    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
-    private String dateTimeColumn;
-
-  }
 
   @Data
   @Builder
@@ -144,8 +130,6 @@ public class DatasetRequest {
     @NotEmpty(message = "table은 필수 입력값입니다.")
     private String table;
 
-    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
-    private String dateTimeColumn;
 
   }
 
@@ -153,11 +137,11 @@ public class DatasetRequest {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
-  public static class UpdateWithCsv{
+  public static class UpdateData {
 
-    @NotEmpty(message = "dateTimeColumn는 필수 입력값입니다.")
-    private String dateTimeColumn;
-
+    List<Map<String, Object>> column;
+    String dateTimeColumn;
+    List<Map<String, Object>> data;
   }
 
 

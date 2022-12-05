@@ -2,15 +2,16 @@ package com.seoh.khudatastudiodatasetapi.domain.dataset.controller;
 
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetRequest;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetResponse;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.HistoryRequest;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.HistoryResponse;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.service.DatasetService;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -75,9 +76,8 @@ public class DatasetController {
 
   @PostMapping("/preview/csv")
   public DatasetResponse.GetData previewWithCsv(
-      @RequestPart @Valid DatasetRequest.PreviewWithCsv request,
       @RequestPart MultipartFile csv) {
-    return datasetService.previewWithCsv(request, csv);
+    return datasetService.previewWithCsv(csv);
   }
 
   @GetMapping("/{datasetId}/data")
@@ -104,17 +104,34 @@ public class DatasetController {
   @PutMapping("/{datasetId}/data/csv")
   public DatasetResponse.GetId updateWithCsv(
       @PathVariable Long datasetId,
-      @RequestPart @Valid DatasetRequest.UpdateWithCsv request,
       @RequestPart MultipartFile csv) {
-    return datasetService.updateWithCsv(datasetId, request, csv);
+    return datasetService.updateWithCsv(datasetId,csv);
   }
 
+  @PutMapping("/{datasetId}/data")
+  public DatasetResponse.GetId updateData(@PathVariable Long datasetId, @RequestBody List<Map<String, Object>> data){
+    return datasetService.updateData(datasetId,data);
+  }
 
-//
-//  @PutMapping("/{datasetId}/data")
-//  public DatasetResponse.GetId updateData(@PathVariable Long id,
-//      @RequestBody DatasetRequest.UpdateData request) {
-//    return datasetService.updateData(id, request);
-//  }
+  @PostMapping("/{datasetId}/history")
+  public void saveHistory(@PathVariable Long datasetId,@RequestBody HistoryRequest.Save request){
+    datasetService.saveHistory(datasetId, request);
+  }
+
+  @DeleteMapping("/{datasetId}/data")
+  public void deleteDataByDate(@PathVariable Long datasetId, @RequestBody List<String> dateList){
+    datasetService.deleteDataByDate(datasetId, dateList);
+  }
+
+  @GetMapping("/{datasetId}/history")
+  public List<HistoryResponse.GetList> getHistoryByDatasetId(@PathVariable Long datasetId){
+    return datasetService.getHistoryByDatasetId(datasetId);
+  }
+
+  @GetMapping("/history")
+  public List<HistoryResponse.GetList> getHistory(){
+    return datasetService.getHistory();
+  }
+
 
 }

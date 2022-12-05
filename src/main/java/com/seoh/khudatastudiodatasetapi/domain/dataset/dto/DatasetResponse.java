@@ -134,6 +134,11 @@ public class DatasetResponse {
 
     private String name;
 
+    private HistoryResponse.Get historyMissingValue;
+
+    private HistoryResponse.Get historyNoise;
+
+
     public static GetList of(Dataset dataset) {
       return GetList.builder()
           .id(dataset.getId())
@@ -161,7 +166,6 @@ public class DatasetResponse {
 
     private String name;
     private String type;
-    private boolean dateTimeColumn;
 
   }
 

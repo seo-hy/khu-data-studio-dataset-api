@@ -1,5 +1,6 @@
 package com.seoh.khudatastudiodatasetapi.domain.dataset.model;
 
+import com.seoh.khudatastudiodatasetapi.domain.common.model.BaseTimeEntity;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetRequest;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -9,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Dataset {
+public class Dataset extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class Dataset {
   @Column(nullable = false, unique = true)
   private String name;
 
-  @Column(nullable = false)
+  @Column
   private String dateTimeColumn;
 
   @OneToMany(mappedBy = "dataset", cascade = CascadeType.ALL)
@@ -37,6 +37,13 @@ public class Dataset {
 
   @OneToMany(mappedBy = "dataset", cascade = CascadeType.ALL)
   private List<TimeSeriesData> timeSeriesDataList;
+
+  @OneToMany(mappedBy = "dataset", cascade = CascadeType.ALL)
+  private List<History> historyList;
+
+  public void setDateTimeColumn(String dateTimeColumn) {
+    this.dateTimeColumn = dateTimeColumn;
+  }
 
   public void update(DatasetRequest.Update update) {
     this.name = update.getName();
