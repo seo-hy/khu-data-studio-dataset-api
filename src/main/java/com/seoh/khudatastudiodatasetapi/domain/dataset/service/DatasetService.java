@@ -2,12 +2,15 @@ package com.seoh.khudatastudiodatasetapi.domain.dataset.service;
 
 import com.seoh.khudatastudiodatasetapi.domain.common.advice.exception.DatasetDataTypeNotValidException;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetRequest;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetRequest.UpdateData;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetResponse;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetResponse.GetColumn;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetResponse.GetList;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.HistoryRequest;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.HistoryResponse;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.Dataset;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.DatasetColumn;
+import com.seoh.khudatastudiodatasetapi.domain.dataset.model.History;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.model.TimeSeriesData;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.repository.DatasetColumnRepository;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.repository.DatasetRepository;
@@ -32,6 +35,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -43,6 +47,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -187,12 +192,27 @@ public class DatasetService {
   }
 
   public List<DatasetResponse.GetList> getList() {
-    List<DatasetResponse.GetList> result = datasetRepository.findAll(Sort.by(Direction.ASC, "id")).stream()
+    List<DatasetResponse.GetList> result = datasetRepository.findAll(Sort.by(Direction.ASC, "id"))
+        .stream()
         .map(DatasetResponse.GetList::of)
         .collect(Collectors.toList());
-    for(GetList getList : result){
-      getList.setMissingValueList(HistoryResponse.GetMissingValue.of(historyRepository.findByDatasetIdAndName(getList.getId(), "missingValue")));
-      getList.setNoiseList(HistoryResponse.GetNoise.of(historyRepository.findByDatasetIdAndName(getList.getId(),"noise")));
+    for (GetList getList : result) {
+      Optional<History> historyMissingValue = historyRepository.findTop1ByDatasetIdAndNameOrderByCreatedDateDesc(
+          getList.getId(), "결측치 처리");
+      if (historyMissingValue.isPresent()) {
+        getList.setHistoryMissingValue(HistoryResponse.Get.of(historyMissingValue.get()));
+      } else {
+        getList.setHistoryMissingValue(null);
+      }
+      Optional<History> historyNoise = historyRepository.findTop1ByDatasetIdAndNameOrderByCreatedDateDesc(
+          getList.getId(), "노이즈 제거");
+      if (historyNoise.isPresent()) {
+        getList.setHistoryNoise(HistoryResponse.Get.of(historyNoise.get()));
+      } else {
+        getList.setHistoryNoise(null);
+      }
+
+
     }
     return result;
   }
@@ -459,117 +479,44 @@ public class DatasetService {
 
   }
 
-
-  public DatasetResponse.GetColumn getColumn(Long id) {
-//    Dataset dataset = datasetRepository.findById(id).get();
-//    String MysqlDriver = "com.mysql.jdbc.Driver";
-//
-//    JSONArray data = new JSONArray();
-//    List<DatasetResponse.ColumnInfo> column = new ArrayList<>();
-//
-//    try {
-//      Class.forName(MysqlDriver);
-//      Connection connection = DriverManager.getConnection(
-//          String.format("jdbc:mysql://%s:%s/%s", dataset.getHost(), dataset.getPort(),
-//              dataset.getDb()), dataset.getUserName(), dataset.getPassword()
-//      );
-//      Statement statement = connection.createStatement();
-//
-//      String sql = "";
-//      sql = String.format("select * from %s", dataset.getTableName());
-//
-//      ResultSet resultSet = statement.executeQuery(sql);
-//
-//      ResultSetMetaData rsmd = resultSet.getMetaData();
-//
-//      for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-//        String type = rsmd.getColumnTypeName(i);
-//        if (type.equals("VARCHAR")) {
-//          type += String.format("(%s)", rsmd.getColumnDisplaySize(i));
-//        }
-//        if (rsmd.getColumnName(i).equals(dataset.getDateTimeColumn())) {
-//          column.add(
-//              DatasetResponse.ColumnInfo.builder()
-//                  .name(rsmd.getColumnName(i))
-//                  .type(type)
-//                  .dateTimeColumn(true)
-//                  .build()
-//          );
-//        } else {
-//          column.add(
-//              DatasetResponse.ColumnInfo.builder()
-//                  .name(rsmd.getColumnName(i))
-//                  .type(type)
-//                  .dateTimeColumn(false)
-//                  .build()
-//          );
-//        }
-//      }
-//
-//      connection.close();
-//    } catch (Exception e) {
-//      log.error(e.getMessage());
-//    }
-//    return DatasetResponse.GetColumn.builder()
-//        .column(column)
-//        .build();
-    return null;
+  public List<HistoryResponse.GetList> getHistoryByDatasetId(Long datasetId) {
+    return historyRepository.findByDatasetIdOrderByCreatedDateDesc(datasetId).stream()
+        .map(HistoryResponse.GetList::of).collect(Collectors.toList());
   }
-//
-//  public DatasetResponse.GetId updateData(Long id, DatasetRequest.UpdateData request) {
-//    Dataset dataset = datasetRepository.findById(id).get();
-//
-//    String MysqlDriver = "com.mysql.jdbc.Driver";
-//
-//    try {
-//      Class.forName(MysqlDriver);
-//      Connection connection = DriverManager.getConnection(
-//          String.format("jdbc:mysql://%s:%s/%s", dataset.getHost(), dataset.getPort(),
-//              dataset.getDb()), dataset.getUserName(), dataset.getPassword()
-//      );
-//      Statement statement = connection.createStatement();
-//      statement.executeUpdate(
-//          String.format("drop table if exists %s", dataset.getTableName()));
-//
-//      StringBuilder sb = new StringBuilder();
-//      sb.append(String.format("create table %s(", dataset.getTableName()));
-//      for (DatasetRequest.ColumnInfo col : request.getColumn()) {
-//        sb.append(String.format("%s %s,", col.getName(), col.getType()));
-//      }
-//      sb.deleteCharAt(sb.length() - 1);
-//      sb.append(");");
-//      statement.execute(sb.toString());
-//
-//      ObjectMapper mapper = new ObjectMapper();
-//      StringBuilder insertSbtemplate = new StringBuilder();
-//      insertSbtemplate.append(String.format("insert into %s (", dataset.getTableName()));
-//      for (DatasetRequest.ColumnInfo col : request.getColumn()) {
-//        insertSbtemplate.append(String.format("%s,", col.getName()));
-//      }
-//      insertSbtemplate.deleteCharAt(insertSbtemplate.length() - 1);
-//      insertSbtemplate.append(") values(");
-//      for (int i = 0; i < request.getData().size(); i++) {
-//        JSONObject object = mapper.convertValue(request.getData().get(i), JSONObject.class);
-//        StringBuilder insertSb = new StringBuilder(insertSbtemplate);
-//        for (DatasetRequest.ColumnInfo col : request.getColumn()) {
-//          if (col.getType().contains("VARCHAR")) {
-//            insertSb.append(String.format("'%s',", object.get(col.getName())));
-//          } else {
-//            insertSb.append(String.format("%s,", object.get(col.getName())));
-//
-//          }
-//        }
-//        insertSb.deleteCharAt(insertSb.length() - 1);
-//        insertSb.append(");");
-//        statement.executeUpdate(insertSb.toString());
-//      }
-//      connection.close();
-//    } catch (Exception e) {
-//      log.error(e.getMessage());
-//    }
-//
-//    return DatasetResponse.GetId.of(dataset);
-//    return null;
-//  }
+  public List<HistoryResponse.GetList> getHistory() {
+    return historyRepository.findAll(Sort.by(Direction.DESC, "createdDate")).stream()
+        .map(HistoryResponse.GetList::of).collect(Collectors.toList());
+  }
 
+  public DatasetResponse.GetId updateData(Long datasetId, List<Map<String, Object>> data) {
+    Dataset dataset = datasetRepository.findById(datasetId).get();
+    List<TimeSeriesData> timeSeriesDataList = new ArrayList<>();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    for (Map<String, Object> map : data) {
+
+      timeSeriesDataList.add(
+          TimeSeriesData.builder()
+              .dataset(dataset)
+              .date(LocalDateTime.parse((CharSequence) map.get("date"), formatter))
+              .value((Map<String, Object>) map.get("value"))
+              .build()
+      );
+    }
+    timeSeriesDataRepository.saveAll(timeSeriesDataList);
+    return DatasetResponse.GetId.of(dataset);
+  }
+
+  public void deleteDataByDate(Long datasetId, List<String> dateList) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    List<LocalDateTime> formatList = new ArrayList<>();
+    for (String date : dateList) {
+      formatList.add(LocalDateTime.parse(date, formatter));
+    }
+    timeSeriesDataRepository.deleteAllByDatasetIdAndDateIn(datasetId, formatList);
+  }
+
+  public void saveHistory(Long datasetId, HistoryRequest.Save request){
+    historyRepository.save(request.toEntity(datasetRepository.findById(datasetId).get()));
+  }
 }

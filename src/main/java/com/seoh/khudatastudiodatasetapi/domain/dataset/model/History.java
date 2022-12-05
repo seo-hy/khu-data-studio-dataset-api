@@ -1,5 +1,6 @@
 package com.seoh.khudatastudiodatasetapi.domain.dataset.model;
 
+import com.seoh.khudatastudiodatasetapi.domain.common.model.BaseTimeEntity;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import java.util.Map;
 import javax.persistence.Column;
@@ -23,7 +24,7 @@ import org.hibernate.annotations.TypeDef;
 @NoArgsConstructor
 @AllArgsConstructor
 @TypeDef(name = "json", typeClass = JsonType.class)
-public class History {
+public class History extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +32,12 @@ public class History {
 
   @Column(nullable = false)
   private String name;
+
+  @Column(nullable = false)
+  private String startDate;
+
+  @Column(nullable = false)
+  private String endDate;
 
   @Type(type = "json")
   @Column(nullable = false, columnDefinition = "json")

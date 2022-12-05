@@ -1,5 +1,6 @@
 package com.seoh.khudatastudiodatasetapi.domain.dataset.model;
 
+import com.seoh.khudatastudiodatasetapi.domain.common.model.BaseTimeEntity;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetRequest;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Dataset {
+public class Dataset extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

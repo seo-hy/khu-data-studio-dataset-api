@@ -16,20 +16,26 @@ public class HistoryRequest {
   @NoArgsConstructor
   @AllArgsConstructor
   public static class Save {
+
     @NotEmpty(message = "name 필드는 필수 입력값입니다.")
     private String name;
 
     @NotEmpty(message = "detail 필드는 필수 입력값입니다.")
     private Map<String, Object> detail;
 
-    @NotEmpty(message = "datasetId 필드는 필수 입력값입니다.")
-    private Long datasetId;
+    @NotEmpty(message = "startDate 필드는 필수 입력값입니다.")
+    private String startDate;
+
+    @NotEmpty(message = "endDate 필드는 필수 입력값입니다.")
+    private String endDate;
 
     public History toEntity(Dataset dataset){
       return History.builder()
           .name(this.name)
           .detail(this.detail)
           .dataset(dataset)
+          .startDate(this.startDate)
+          .endDate(this.endDate)
           .build();
     }
   }
