@@ -61,7 +61,7 @@ public class DatasetService {
   private final TimeSeriesDataRepository timeSeriesDataRepository;
   private final HistoryRepository historyRepository;
 
-  public DatasetResponse.GetId saveWithDatabase(DatasetRequest.SaveWithDatabase request)
+  public DatasetResponse.GetId saveWithDatabase(DatasetRequest.SaveByDatabase request)
       throws ClassNotFoundException, SQLException {
     Dataset dataset = datasetRepository.save(request.toEntity());
 
@@ -126,7 +126,7 @@ public class DatasetService {
   }
 
   public DatasetResponse.GetId saveWithCsv(
-      DatasetRequest.SaveWithCsv request,
+      DatasetRequest.SaveByCsv request,
       MultipartFile csv) throws IOException {
     Dataset dataset = datasetRepository.save(request.toEntity());
 

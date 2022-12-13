@@ -5,6 +5,8 @@ import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.DatasetResponse;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.HistoryRequest;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.dto.HistoryResponse;
 import com.seoh.khudatastudiodatasetapi.domain.dataset.service.DatasetService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -25,23 +27,26 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+
 @RestController
 @RequestMapping("/dataset-api/datasets")
+@Tag(name = "Database")
 @RequiredArgsConstructor
 public class DatasetController {
 
   private final DatasetService datasetService;
 
+  @Operation(summary = "데이터베이스로 데이터셋 생성")
   @PostMapping("/database")
-  public DatasetResponse.GetId saveWithDatabase(
-      @RequestBody @Valid DatasetRequest.SaveWithDatabase request)
+  public DatasetResponse.GetId saveByDatabase(
+      @RequestBody @Valid DatasetRequest.SaveByDatabase request)
       throws SQLException, ClassNotFoundException {
     return datasetService.saveWithDatabase(request);
   }
 
   @PostMapping("/csv")
   public DatasetResponse.GetId saveWithCsv(
-      @RequestPart @Valid DatasetRequest.SaveWithCsv request,
+      @RequestPart @Valid DatasetRequest.SaveByCsv request,
       @RequestPart MultipartFile csv) throws IOException {
     return datasetService.saveWithCsv(request, csv);
   }
